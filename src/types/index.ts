@@ -17,7 +17,7 @@ export type UserLogin = Pick< User, 'email' > & {
     password: ''
 }
 
-export type ProfileFile = Pick< User, 'handle' | 'description' >
+export type ProfileForm = Pick< User, 'handle' | 'description' >
 
 export type SocialNetwork = {
     id: string

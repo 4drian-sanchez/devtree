@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form"
 import ErrorMessage from "../components/ErrorMessage"
-import { ProfileFile, User } from "../types"
+import { ProfileForm, User } from "../types"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { updateProfile, uploadProfileImage } from "../api/DevTreeAPI"
 import { toast } from "sonner"
@@ -10,9 +10,9 @@ export default function ProfilePage() {
     const queryClient = useQueryClient()
     //Obtiene los datos de la cache
     const data : User = queryClient.getQueryData(['user'])!
-    console.log(data)
+
     //React Hook Form
-    const {register, handleSubmit, formState: {errors}} = useForm({
+    const {register, handleSubmit, formState: {errors}} = useForm<ProfileForm>({
         defaultValues: {
             handle: data.handle,
             description: data.description
@@ -25,15 +25,9 @@ export default function ProfilePage() {
         onError: (error)=> {
             toast.error(error.message)
         },
-        onSuccess: msg => {
-            queryClient.setQueryData( ["user"], (prevData : User) => {
-                return {
-                    ...prevData,
-                    handle: data.handle,
-                    description: data.description
-                }
-            })
-            toast.success(msg)
+        onSuccess: (data) => {
+            toast.success(data)
+            queryClient.invalidateQueries({queryKey: ['user']})
         }
     })
 
@@ -57,18 +51,12 @@ export default function ProfilePage() {
     //Funcion para cambiasr la imagen
     const handleChangeImage =(e : React.ChangeEvent<HTMLInputElement>) => {
         if(e.target.files) {
-            uploadImageMutation.mutate(e.target.files[0])
-            
+            uploadImageMutation.mutate(e.target.files[0])   
         }
     }
 
-    const onSubmit = (formData : ProfileFile) => {
-        const user : User = queryClient.getQueryData(['user'])!
-        user.handle = formData.handle
-        user.description = formData.description
-
-        updateProfileMutation.mutate(user)
-    }
+    //Funcion que toma handleSubmit
+    const onSubmit = (formData : ProfileForm) => updateProfileMutation.mutate(formData)
 
   return (
       <form 

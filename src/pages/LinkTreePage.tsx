@@ -14,15 +14,12 @@ export default function LinkTreePage() {
   const queryClient = useQueryClient()
   const user : User = queryClient.getQueryData( ['user'] )!
   
-  //Mutation para actualizar el perfil
   const { mutate } = useMutation({
     mutationFn: updateProfile,
     onError: error => toast.error(error.message),
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['user']})
-      toast.success('Actualizado')
+      toast.success('Links Actualizados')
     }
-    
   })
 
   const handleInputUrl = (e : React.ChangeEvent<HTMLInputElement>) => {
