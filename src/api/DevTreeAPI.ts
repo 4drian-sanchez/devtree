@@ -2,7 +2,7 @@ import { isAxiosError } from "axios"
 import api from "../config/axios"
 import { User } from "../types"
 
-
+//joder con esto
 export const getUser = async () => {
     try {
         const { data } = await api('/user')
