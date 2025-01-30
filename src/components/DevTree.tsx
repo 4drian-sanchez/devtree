@@ -1,9 +1,41 @@
 import { Link, Outlet } from "react-router-dom";
 import NavigationTabs from "./NavigationTabs";
 import { Toaster } from "sonner";
-import { User } from "../types";
-import DevTreeLink from "./DevTreeLink";
+import { SocialNetwork, User } from "../types";
+import DevTreeLinks from "./DevTreeLinks";
+import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core'
+import { arrayMove } from '@dnd-kit/sortable'
+import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+
 export default function DevTree({ data }: { data: User }) {
+    
+    const queryClient = useQueryClient()
+    const [enabledLinks, setEnabledLinks] = useState<SocialNetwork[]>(JSON.parse(data.links).filter((link: SocialNetwork) => link.enabled));
+
+    useEffect(() => {
+        setEnabledLinks(JSON.parse(data.links).filter((link: SocialNetwork) => link.enabled))
+    }, [data]);
+
+    const handleDragEnd = (e: DragEndEvent) => {
+        const {over, active} = e
+        if(over && over.id) {
+            const prevIndex = enabledLinks.findIndex( link => link.id === active.id )
+            const newIndex = enabledLinks.findIndex( link => link.id === over.id )
+
+            const order = arrayMove(enabledLinks, prevIndex, newIndex)
+            setEnabledLinks(order)
+
+            const disabledLinks = JSON.parse(data.links).filter((link: SocialNetwork) => !link.enabled)
+            const links = enabledLinks.concat(disabledLinks)
+            queryClient.setQueryData( ['user'], (prevData : User) => {
+                return {
+                    ...prevData,
+                    links: JSON.stringify(links)
+                }
+            } )
+        }
+    }
 
     return (
         <>
@@ -57,8 +89,16 @@ export default function DevTree({ data }: { data: User }) {
                             <p className="text-white font-bold text-center">
                                 {data.description}
                             </p>
+
                             {/* Links */}
-                            <DevTreeLink links={data.links} />
+                            <DndContext
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <DevTreeLinks
+                                    enabledLinks={enabledLinks}
+                                />
+                            </DndContext>
                         </aside>
 
                     </div>

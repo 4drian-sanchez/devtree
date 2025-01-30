@@ -86,7 +86,7 @@ export default function LinkTreePage() {
               enabled: false
             }
           //Comprueba si el id del link iterado es menor a id del link seleccionado
-          }else if( link.id > indexLink ) {
+          }else if( link.id > indexLink && (indexLink !== 0 && link.id === 1)) {
             return {
               ...link,
               id: link.id - 1
@@ -138,7 +138,7 @@ export default function LinkTreePage() {
       <button
         type="button"
         className="bg-cyan-400 p-2 w-full rounded-md mt-10 font-bold text-gray-700 uppercase"
-        onClick={ () => mutate(user) }
+        onClick={ () => mutate( queryClient.getQueryData( ['user'] )!) }
       >Guardar cambios</button>
     </>
   );
