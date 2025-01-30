@@ -20,7 +20,7 @@ export type UserLogin = Pick< User, 'email' > & {
 export type ProfileForm = Pick< User, 'handle' | 'description' >
 
 export type SocialNetwork = {
-    id: string
+    id: number
     name: string
     url: string
     enabled: boolean
