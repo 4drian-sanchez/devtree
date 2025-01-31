@@ -3,16 +3,19 @@ import ErrorMessage from '../ErrorMessage';
 import { UserForm } from '../../types';
 import { isAxiosError } from 'axios';
 import api from '../../config/axios';
-
 import { toast } from 'sonner';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function RegisterForm() {
+
+    const location = useLocation()
+    const navigate = useNavigate()
 
     const { register, watch, handleSubmit, formState: { errors } } = useForm<UserForm>({
         defaultValues: {
             name: '',
             email: '',
-            handle: '',
+            handle: location?.state?.handle || '',
             password: '',
             password_confirmation: ''
         }
@@ -24,6 +27,7 @@ export default function RegisterForm() {
         try {
             const { data } = await api.post('/auth/register', formData)
             toast.success(data)
+            navigate('/auth/login')
 
         } catch (error) {
             if (isAxiosError(error) && error.response) {
@@ -104,7 +108,7 @@ export default function RegisterForm() {
                 <div className="grid grid-cols-1 space-y-3">
                     <label htmlFor="password_confirmation" className="text-2xl text-slate-500">Repetir Password</label>
                     <input
-                        id="password"
+                        id="password_confirmation"
                         type="password"
                         placeholder="Repetir Password"
                         className="bg-slate-100 border-none p-3 rounded-lg placeholder-slate-400"

@@ -5,9 +5,12 @@ import { isAxiosError } from "axios"
 import ErrorMessage from "../ErrorMessage"
 import api from "../../config/axios"
 import { useNavigate } from "react-router-dom"
+import { useQueryClient } from "@tanstack/react-query"
 
 
 export default function LoginForm() {
+
+    const queryClient = useQueryClient()
 
     const navigate = useNavigate()
     const { register, handleSubmit, formState: { errors } } = useForm<UserLogin>({
@@ -21,6 +24,7 @@ export default function LoginForm() {
         try {
             const { data } = await api.post('/auth/login', formData)
             localStorage.setItem('devTree', data)
+            queryClient.removeQueries({queryKey: ['user']})
             navigate('/admin')
         } catch (error) {
             if (isAxiosError(error) && error.response) {
